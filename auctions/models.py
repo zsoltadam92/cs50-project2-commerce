@@ -3,7 +3,10 @@ from django.db import models
 
 
 class User(AbstractUser):
-    pass
+    watchlist = models.ManyToManyField('AuctionListing', related_name='watchlist', blank=True)
+
+    def __str__(self):
+        return self.username
 
 class AuctionListing(models.Model):
     title = models.CharField(max_length=128)
