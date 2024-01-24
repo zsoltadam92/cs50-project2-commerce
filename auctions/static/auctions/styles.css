@@ -1,3 +1,26 @@
 body {
-    padding: 10px;
+  padding: 10px;
+}
+
+/* index.html------------------ */
+
+.listings {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.listing {
+  width: 250px;
+  border: 1px solid black;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.listing__image {
+  align-self: center;
+  object-fit: contain;
 }
