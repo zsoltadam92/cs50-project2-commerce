@@ -1,19 +1,23 @@
 {% extends "auctions/layout.html" %} {% block body %}
-<h2>Active Listings</h2>
+<h2 class="mb-4">Active Listings</h2>
 
-<div class="listings">
+<div class="row">
   {% for item in listings %} {% if item.is_active %}
-  <div class="listing">
-    <img
-      class="listing__image"
-      width="150px"
-      height="200px"
-      src="{{ item.image_url }}"
-      alt="{{ item.title }}"
-    />
-    <h3 class="listing__title">{{ item.title }}</h3>
-    <p class="listing__description">{{ item.description|truncatechars:30 }}</p>
-    <p class="listing__current-bid">$ {{ item.current_bid }}</p>
+  <div class="col-md-4 col-lg-3 col-xl-2 mb-4">
+    <div class="card h-100 d-flex flex-column">
+      <img
+        class="card-img-top img-fluid"
+        src="{{ item.image_url }}"
+        alt="{{ item.title }}"
+      />
+      <div class="card-body">
+        <h3 class="card-title">{{ item.title|truncatechars:30 }}</h3>
+        <p class="card-text">{{ item.description|truncatechars:60 }}</p>
+      </div>
+      <div class="card-footer mt-auto">
+        <p class="card-text">$ {{ item.current_bid }}</p>
+      </div>
+    </div>
   </div>
   {% endif %} {% endfor %}
 </div>
