@@ -1,10 +1,20 @@
+from django import forms
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 
 from .models import User, AuctionListing, Bid, Comment
+
+
+class NewListing(forms.Form):
+    title = forms.CharField(label="Title", max_length=200)
+    description = forms.CharField(label="Description", widget=forms.Textarea)
+    starting_bid = forms.DecimalField(label="Start Bid", max_digits=6, decimal_places=2, min_value=0.01, max_value=9999.99)
+    image_url = forms.URLField(label="Image URL")
+    category = forms.CharField(label="Category",max_length=128)
 
 
 def index(request):
@@ -70,4 +80,35 @@ def listing_details(request,listing_id):
     listing = AuctionListing.objects.get(pk=listing_id)
     return render(request, "auctions/listing_details.html", {
         "listing": listing
+    })
+
+@login_required
+def new_listing(request):
+    if request.method == "POST":
+        form = NewListing(request.POST)
+        if form.is_valid():
+            new_listing = AuctionListing(
+                title=form.cleaned_data["title"],
+                description=form.cleaned_data["description"],
+                starting_bid=form.cleaned_data['starting_bid'],
+                current_bid=form.cleaned_data['starting_bid'],
+                image_url=form.cleaned_data['image_url'],
+                category=form.cleaned_data['category'],
+                creator=request.user  # Assign the logged-in user as the creator
+            )
+
+            new_listing.save()
+        else:
+            form = NewListing()
+
+
+    return render(request, "auctions/new_listing.html", {
+        "form": NewListing()
+    })
+
+
+@login_required
+def my_listings(request):
+    return render(request, "auctions/my_listings.html", {
+        "my_listings": AuctionListing.objects.filter(creator=request.user)
     })
