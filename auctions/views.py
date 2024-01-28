@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
@@ -78,8 +78,10 @@ def register(request):
 
 def listing_details(request,listing_id):
     listing = AuctionListing.objects.get(pk=listing_id)
+    logged_in_user = request.user
     return render(request, "auctions/listing_details.html", {
-        "listing": listing
+        "listing": listing,
+        "user": logged_in_user
     })
 
 @login_required
@@ -112,3 +114,11 @@ def my_listings(request):
     return render(request, "auctions/my_listings.html", {
         "my_listings": AuctionListing.objects.filter(creator=request.user)
     })
+
+
+@login_required
+def close_listing(request, listing_id):
+    listing = AuctionListing.objects.get(pk=listing_id, creator=request.user)
+    listing.is_active = False
+    listing.save()
+    return redirect('listing_details', listing_id=listing_id)

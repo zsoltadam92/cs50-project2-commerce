@@ -8,5 +8,18 @@
   alt="{{listing.title}}"
 />
 <p>{{listing.description}}</p>
-
-{% endblock %}
+<p>Listed by: {{listing.creator}}</p>
+<p>Start bid : {{listing.starting_bid}}</p>
+{% if user == listing.creator %}
+<form action="{% url 'close_listing' listing.id %}" method="post">
+  {% csrf_token %}
+  <input type="submit" value="Close listing" />
+</form>
+{% if listing.is_active is not True %}
+<p>The listing is closed!</p>
+{% endif %} {% else %}
+<form>
+  {% csrf_token %}
+  <input type="submit" value="Watchlist" />
+</form>
+{% endif %} {% endblock %}
