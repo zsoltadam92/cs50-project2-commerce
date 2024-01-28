@@ -1,50 +1,62 @@
 {% extends "auctions/layout.html" %} {% block body %}
 
-<h1>{{listing.title}}</h1>
-<div class="d-flex flex-column">
-  <img
-    width="150px"
-    height="200px"
-    src="{{listing.image_url}}"
-    alt="{{listing.title}}"
-    class="position-relative"
-  />
-  {% if not listing.is_active %}
-  <span
-    class="badge badge-danger position-absolute top-0 start-50 translate-middle-x"
-    style="font-size: 1rem"
-    >Closed</span
-  >
-  {% endif %}
-</div>
-<p>{{listing.description}}</p>
-<p>Listed by: {{listing.creator}}</p>
-<p>Start bid : {{listing.starting_bid}}</p>
+<div class="container mt-5">
+  <div class="row justify-content-center align-items-center">
+    <div class="col-sm-5 col-lg-3 d-flex flex-column mr-5">
+      <img
+        width="250px"
+        height="300px"
+        src="{{listing.image_url}}"
+        alt="{{listing.title}}"
+        class="position-relative"
+        style="object-fit: contain"
+      />
+      {% if not listing.is_active %}
+      <span
+        class="badge badge-danger position-absolute top-0 start-50 translate-middle-x"
+        style="font-size: 1rem"
+        >Closed</span
+      >
+      {% endif %}
+    </div>
+    <div class="col-sm-6 col-md-6 d-flex flex-column">
+      <h3>{{listing.title}}</h3>
+      <p>{{listing.description}}</p>
+      <p>Listed by: {{listing.creator}}</p>
+      <p>Start bid : {{listing.starting_bid}}</p>
 
-{% if listing.start_bid|floatformat < listing.current_bid|floatformat %}
-<p>Current bid : {{listing.current_bid}}</p>
-{% endif %} {% if user == listing.creator %} {% if listing.is_active %}
-<form action="{% url 'close_listing' listing.id %}" method="post">
-  {% csrf_token %}
-  <input type="submit" value="Close listing" />
-</form>
-{% else %}
-<span class="alert alert-danger">The listing is closed!</span>
-{% endif %} {% else %}
-<form action="{% url 'add_bid' listing.id %}" method="post">
-  {% csrf_token %} {{ form }}
-  <input type="submit" value="Place Bid" />
-  {% if messages %} {% for message in messages %}
-  <span
-    class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% endif %}"
-    role="alert"
-  >
-    {{ message }}
-  </span>
-  {% endfor %} {% endif %}
-</form>
-<form>
-  {% csrf_token %}
-  <input type="submit" value="Watchlist" />
-</form>
-{% endif %} {% endblock %}
+      {% if listing.start_bid|floatformat < listing.current_bid|floatformat %}
+      <p>Current bid : {{listing.current_bid}}</p>
+      {% endif %} {% if user == listing.creator %} {% if listing.is_active %}
+      <form action="{% url 'close_listing' listing.id %}" method="post">
+        {% csrf_token %}
+        <input type="submit" value="Close listing" />
+      </form>
+      {% else %}
+      <span class="alert alert-danger">The listing is closed!</span>
+      {% endif %} {% elif user.is_authenticated %}
+      <form action="{% url 'add_bid' listing.id %}" method="post">
+        {% csrf_token %} {{ form }}
+        <input type="submit" value="Place Bid" />
+        {% if messages %} {% for message in messages %}
+        <p
+          class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% endif %}"
+          role="alert"
+        >
+          {{ message }}
+        </p>
+        {% endfor %} {% endif %}
+      </form>
+      <form>
+        {% csrf_token %}
+        <input type="submit" value="Watchlist" />
+      </form>
+      {% else %}
+      <p class="alert alert-primary">
+        You must be logged in to bid or add to watchlist.
+      </p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
