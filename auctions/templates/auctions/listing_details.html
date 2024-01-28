@@ -1,23 +1,48 @@
 {% extends "auctions/layout.html" %} {% block body %}
 
 <h1>{{listing.title}}</h1>
-<img
-  width="150px"
-  height="200px"
-  src="{{listing.image_url}}"
-  alt="{{listing.title}}"
-/>
+<div class="d-flex flex-column">
+  <img
+    width="150px"
+    height="200px"
+    src="{{listing.image_url}}"
+    alt="{{listing.title}}"
+    class="position-relative"
+  />
+  {% if not listing.is_active %}
+  <span
+    class="badge badge-danger position-absolute top-0 start-50 translate-middle-x"
+    style="font-size: 1rem"
+    >Closed</span
+  >
+  {% endif %}
+</div>
 <p>{{listing.description}}</p>
 <p>Listed by: {{listing.creator}}</p>
 <p>Start bid : {{listing.starting_bid}}</p>
-{% if user == listing.creator %}
+
+{% if listing.start_bid|floatformat < listing.current_bid|floatformat %}
+<p>Current bid : {{listing.current_bid}}</p>
+{% endif %} {% if user == listing.creator %} {% if listing.is_active %}
 <form action="{% url 'close_listing' listing.id %}" method="post">
   {% csrf_token %}
   <input type="submit" value="Close listing" />
 </form>
-{% if listing.is_active is not True %}
-<p>The listing is closed!</p>
+{% else %}
+<span class="alert alert-danger">The listing is closed!</span>
 {% endif %} {% else %}
+<form action="{% url 'add_bid' listing.id %}" method="post">
+  {% csrf_token %} {{ form }}
+  <input type="submit" value="Place Bid" />
+  {% if messages %} {% for message in messages %}
+  <span
+    class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% endif %}"
+    role="alert"
+  >
+    {{ message }}
+  </span>
+  {% endfor %} {% endif %}
+</form>
 <form>
   {% csrf_token %}
   <input type="submit" value="Watchlist" />

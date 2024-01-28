@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib import messages 
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
@@ -16,6 +17,8 @@ class NewListing(forms.Form):
     image_url = forms.URLField(label="Image URL")
     category = forms.CharField(label="Category",max_length=128)
 
+class AddBid(forms.Form):
+    new_bid = forms.DecimalField(label="Your Bid", max_digits=6, decimal_places=2, min_value=0.01, max_value=9999.99)
 
 def index(request):
     return render(request, "auctions/index.html",{
@@ -81,7 +84,8 @@ def listing_details(request,listing_id):
     logged_in_user = request.user
     return render(request, "auctions/listing_details.html", {
         "listing": listing,
-        "user": logged_in_user
+        "user": logged_in_user,
+        "form": AddBid()
     })
 
 @login_required
@@ -122,3 +126,38 @@ def close_listing(request, listing_id):
     listing.is_active = False
     listing.save()
     return redirect('listing_details', listing_id=listing_id)
+
+
+@login_required
+def add_bid(request, listing_id):
+    listing = AuctionListing.objects.get(pk=listing_id)
+
+    if request.method == "POST":
+        form = AddBid(request.POST)
+        if form.is_valid():
+            new_bid_amount = form.cleaned_data["new_bid"]
+
+        if new_bid_amount > listing.current_bid and new_bid_amount >= listing.starting_bid:
+            # Create a new bid
+            new_bid = Bid(listing=listing, user=request.user, bid_amount=new_bid_amount)
+            new_bid.save()
+
+            # Update the current bid on the listing
+            listing.current_bid = new_bid_amount
+            listing.save()
+
+            messages.success(request, 'Bid placed successfully!')
+
+            return redirect('listing_details', listing_id=listing_id)
+        
+        else:
+            messages.error(request, 'Bid must be greater than the current bid and starting bid.')
+
+    else:
+        form = AddBid()
+
+    return render(request, "auctions/listing_details.html", {
+        "listing": listing,
+        "user": request.user,
+        "form": AddBid()
+    })
