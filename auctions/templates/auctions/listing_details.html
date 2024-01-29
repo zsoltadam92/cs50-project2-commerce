@@ -12,10 +12,22 @@
         style="object-fit: contain"
       />
       {% if listing.is_active %} {% if user.is_authenticated %}
-      <form class="mt-3">
+      <form class="mt-3" action="{% url 'watchlist' %}" method="post">
         {% csrf_token %}
-        <input type="submit" value=" Go To Watchlist" />
+        <input type="hidden" name="listing_id" value="{{ listing.id }}" />
+        <button type="submit">Add to Watchlist</button>
       </form>
+      {% if messages %} 
+      {% for message in messages %}
+        {% if message.tags == 'watchlist_success success' or message.tags == 'watchlist_error error' %}
+          <p class="alert {% if message.tags == 'watchlist_success success' %}alert-success
+          {% elif message.tags == 'watchlist_error error' %}alert-danger{% endif %}" role="alert">
+            {{ message }}
+          </p>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+
       {% endif %} {% else %}
       <span
         class="badge badge-danger position-absolute top-0 start-50 translate-middle-x"
@@ -51,21 +63,17 @@
           </div>
         </div>
         <input type="submit" value="Place Bid" class="mt-3" />
-        {% if messages %} {% for message in messages %}
-        <p
-          class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% endif %}"
-          role="alert"
-        >
-          {{ message }}
-        </p>
-        {% endfor %} {% endif %}
+        {% if messages %} 
+        {% for message in messages %}
+          {% if message.tags == 'add_bid_success success' or message.tags == 'add_bid_error error' %}
+            <p class="alert {% if message.tags == 'add_bid_success success' %}alert-success{% elif message.tags == 'add_bid_error error' %}alert-danger{% endif %}" role="alert">
+              {{ message }}
+            </p>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
       </form>
-      {% comment %}
-      <form>
-        {% csrf_token %}
-        <input type="submit" value="Watchlist" />
-      </form>
-      {% endcomment %} {% else %}
+      {% else %}
       <p class="alert alert-primary">
         You must be logged in to bid or add to watchlist.
       </p>

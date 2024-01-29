@@ -167,12 +167,12 @@ def add_bid(request, listing_id):
             listing.current_bid = new_bid_amount
             listing.save()
 
-            messages.success(request, 'Bid placed successfully!')
+            messages.success(request, 'Bid placed successfully!', extra_tags='add_bid_success')
 
             return redirect('listing_details', listing_id=listing_id)
         
         else:
-            messages.error(request, 'Bid must be greater than the current bid and starting bid.')
+            messages.error(request, 'Bid must be greater than the current bid and starting bid.', extra_tags='add_bid_error')
 
     else:
         form = AddBid()
@@ -181,4 +181,29 @@ def add_bid(request, listing_id):
         "listing": listing,
         "user": request.user,
         "form": AddBid()
+    })
+
+    
+@login_required
+def watchlist(request):
+    if request.method == "POST":
+        listing_id = request.POST.get("listing_id")
+        listing = AuctionListing.objects.get(pk=listing_id)
+        user = request.user
+
+        # Check if the listing is already in the watchlist
+        if listing not in user.watchlist.all():
+            user.watchlist.add(listing)
+            messages.success(request, f"{listing.title} added to your watchlist!", extra_tags='watchlist_success')
+        else:
+            messages.error(request, f"{listing.title} is already in your watchlist.", extra_tags='watchlist_error')
+
+        return render(request, "auctions/listing_details.html", {
+        "listing": listing,
+        "user": user,
+        "form": AddBid()
+    })
+    # Display the user's watchlist
+    return render(request, "auctions/watchlist.html", {
+        "watchlist": request.user.watchlist.all()
     })
