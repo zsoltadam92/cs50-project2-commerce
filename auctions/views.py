@@ -103,10 +103,22 @@ def register(request):
 def listing_details(request,listing_id):
     listing = AuctionListing.objects.get(pk=listing_id)
     logged_in_user = request.user
+    if request.method == "POST":
+        # Check if the listing is already in the user's watchlist
+        if logged_in_user.watchlist.filter(pk=listing_id).exists():
+            # If it is, remove it from the watchlist
+            logged_in_user.watchlist.remove(listing)
+            messages.error(request, f"{listing.title} removed in your watchlist.", extra_tags='watchlist_error')
+        else:
+            # If it's not, add it to the watchlist
+            logged_in_user.watchlist.add(listing)
+            messages.success(request, f"{listing.title} added to your watchlist!", extra_tags='watchlist_success')
+
     return render(request, "auctions/listing_details.html", {
         "listing": listing,
         "user": logged_in_user,
-        "form": AddBid()
+        "form": AddBid(),
+        "watchlist_input": "Remove to Watchlist" if logged_in_user.watchlist.filter(pk=listing.id).exists() else "Add to Watchlist"
     })
 
 @login_required
@@ -186,24 +198,7 @@ def add_bid(request, listing_id):
     
 @login_required
 def watchlist(request):
-    if request.method == "POST":
-        listing_id = request.POST.get("listing_id")
-        listing = AuctionListing.objects.get(pk=listing_id)
-        user = request.user
-
-        # Check if the listing is already in the watchlist
-        if listing not in user.watchlist.all():
-            user.watchlist.add(listing)
-            messages.success(request, f"{listing.title} added to your watchlist!", extra_tags='watchlist_success')
-        else:
-            messages.error(request, f"{listing.title} is already in your watchlist.", extra_tags='watchlist_error')
-
-        return render(request, "auctions/listing_details.html", {
-        "listing": listing,
-        "user": user,
-        "form": AddBid()
-    })
-    # Display the user's watchlist
+        # Display the user's watchlist
     return render(request, "auctions/watchlist.html", {
         "watchlist": request.user.watchlist.all()
     })

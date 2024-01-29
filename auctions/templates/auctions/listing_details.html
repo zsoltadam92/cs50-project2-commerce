@@ -12,10 +12,9 @@
         style="object-fit: contain"
       />
       {% if listing.is_active %} {% if user.is_authenticated %}
-      <form class="mt-3" action="{% url 'watchlist' %}" method="post">
+      <form class="mt-3" action="{% url 'listing_details' listing.id %}" method="post">
         {% csrf_token %}
-        <input type="hidden" name="listing_id" value="{{ listing.id }}" />
-        <button type="submit">Add to Watchlist</button>
+        <input type="submit" value="{{watchlist_input}}"</input>
       </form>
       {% if messages %} 
       {% for message in messages %}

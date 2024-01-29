@@ -15,6 +15,7 @@ class AuctionListing(models.Model):
     category = models.CharField(max_length=128, blank=True, null=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="seller")
     is_active = models.BooleanField(default=True)
+    watched_by = models.ManyToManyField(User,related_name="watched", blank=True)
 
     def __str__(self):
         return self.title
