@@ -185,6 +185,7 @@ def add_bid(request, listing_id):
         
         else:
             messages.error(request, 'Bid must be greater than the current bid and starting bid.', extra_tags='add_bid_error')
+            return redirect('listing_details', listing_id=listing_id)
 
     else:
         form = AddBid()

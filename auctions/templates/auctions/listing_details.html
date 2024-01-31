@@ -14,7 +14,7 @@
       />
       
       {% if listing.is_active %}
-        {% if user.is_authenticated %}
+        {% if user.is_authenticated and user != listing.creator %}
           <!-- Watchlist Form -->
           <form class="mt-3" action="{% url 'listing_details' listing.id %}" method="post">
             {% csrf_token %}
@@ -33,6 +33,22 @@
             {% endfor %}
           {% endif %}
         {% endif %}
+      {% elif  user.is_authenticated and not listing.is_active  and user != listing.creator%}
+      <form class="mt-3" action="{% url 'listing_details' listing.id %}" method="post">
+        {% csrf_token %}
+        <input type="submit" value="Remove to Watchlist"/>
+      </form>
+      
+      <!-- Watchlist Messages -->
+      {% if messages %} 
+        {% for message in messages %}
+            <p class="alert alert-danger" role="alert">
+              {{ message }}
+            </p>  
+        {% endfor %}
+      {% endif %}
+
+      <span class="badge badge-danger position-absolute top-0 start-50 translate-middle-x" style="font-size: 1rem">Closed</span>
       {% else %}
         <!-- Closed Listing Badge -->
         <span class="badge badge-danger position-absolute top-0 start-50 translate-middle-x" style="font-size: 1rem">Closed</span>
@@ -62,19 +78,7 @@
           <!-- Closed Listing Message -->
           <span class="alert alert-danger">The listing is closed!</span>
 
-          <form class="mt-3" action="{% url 'listing_details' listing.id %}" method="post">
-            {% csrf_token %}
-            <input type="submit" value="Remove to Watchlist"/>
-          </form>
           
-          <!-- Watchlist Messages -->
-          {% if messages %} 
-            {% for message in messages %}
-                <p class="alert alert-danger" role="alert">
-                  {{ message }}
-                </p>  
-            {% endfor %}
-          {% endif %}
         {% endif %}
       {% elif user.is_authenticated and listing.is_active %}
         <!-- Bidding Form for Authenticated Users -->
@@ -102,19 +106,7 @@
       {% elif user.is_authenticated and not listing.is_active %}
         <span class="alert alert-danger">The listing is closed!</span>
 
-        <form class="mt-3" action="{% url 'listing_details' listing.id %}" method="post">
-          {% csrf_token %}
-          <input type="submit" value="Remove to Watchlist"/>
-        </form>
         
-        <!-- Watchlist Messages -->
-        {% if messages %} 
-          {% for message in messages %}
-              <p class="alert alert-danger" role="alert">
-                {{ message }}
-              </p>  
-          {% endfor %}
-        {% endif %}
       
       {% else %}
         <!-- Not Authenticated User Message -->
