@@ -67,6 +67,7 @@
         <p>Current bid: {{listing.current_bid}} $</p>
       {% endif %} 
       
+      <p>{{listing.get_bid_count}} bids</p>
       <!-- Close Listing Form (for the creator) -->
       {% if user == listing.creator %} 
         {% if listing.is_active %}

@@ -118,7 +118,7 @@ def listing_details(request,listing_id):
         "listing": listing,
         "user": logged_in_user,
         "form": AddBid(),
-        "watchlist_input": "Remove to Watchlist" if logged_in_user.watchlist.filter(pk=listing.id).exists() else "Add to Watchlist"
+        "watchlist_input": "Remove to Watchlist" if logged_in_user.watchlist.filter(pk=listing.id).exists() else "Add to Watchlist",
     })
 
 @login_required
@@ -177,12 +177,13 @@ def add_bid(request, listing_id):
 
             # Update the current bid on the listing
             listing.current_bid = new_bid_amount
+            listing.bids.add(new_bid)
+
             listing.save()
 
             messages.success(request, 'Bid placed successfully!', extra_tags='add_bid_success')
 
             return redirect('listing_details', listing_id=listing_id)
-        
         else:
             messages.error(request, 'Bid must be greater than the current bid and starting bid.', extra_tags='add_bid_error')
             return redirect('listing_details', listing_id=listing_id)
@@ -193,7 +194,7 @@ def add_bid(request, listing_id):
     return render(request, "auctions/listing_details.html", {
         "listing": listing,
         "user": request.user,
-        "form": AddBid()
+        "form": AddBid(),
     })
 
     
