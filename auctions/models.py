@@ -15,6 +15,8 @@ class AuctionListing(models.Model):
     is_active = models.BooleanField(default=True)
     watched_by = models.ManyToManyField('User', related_name="watched", blank=True)
     bids = models.ManyToManyField('Bid', related_name="bids_on_listing", blank=True)
+    current_bidder = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, blank=True)
+
 
     def __str__(self):
         return self.title

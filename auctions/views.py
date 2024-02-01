@@ -102,7 +102,16 @@ def register(request):
 
 def listing_details(request,listing_id):
     listing = AuctionListing.objects.get(pk=listing_id)
-    logged_in_user = request.user
+    logged_in_user = request.user if request.user.is_authenticated else None
+
+    if logged_in_user:
+        user_has_bid = Bid.objects.filter(listing=listing, user=logged_in_user).exists()
+        watchlist_input = "Remove to Watchlist" if logged_in_user.watchlist.filter(pk=listing.id).exists() else "Add to Watchlist"
+    else:
+        user_has_bid = False
+        watchlist_input = None  
+
+
     if request.method == "POST":
         # Check if the listing is already in the user's watchlist
         if logged_in_user.watchlist.filter(pk=listing_id).exists():
@@ -118,7 +127,8 @@ def listing_details(request,listing_id):
         "listing": listing,
         "user": logged_in_user,
         "form": AddBid(),
-        "watchlist_input": "Remove to Watchlist" if logged_in_user.watchlist.filter(pk=listing.id).exists() else "Add to Watchlist",
+        "watchlist_input": watchlist_input,
+        "user_has_bid": user_has_bid,
     })
 
 @login_required
@@ -175,10 +185,11 @@ def add_bid(request, listing_id):
             new_bid = Bid(listing=listing, user=request.user, bid_amount=new_bid_amount)
             new_bid.save()
 
+            
             # Update the current bid on the listing
             listing.current_bid = new_bid_amount
             listing.bids.add(new_bid)
-
+            listing.current_bidder = request.user
             listing.save()
 
             messages.success(request, 'Bid placed successfully!', extra_tags='add_bid_success')
