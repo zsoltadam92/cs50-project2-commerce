@@ -41,6 +41,13 @@ class NewListing(forms.Form):
 class AddBid(forms.Form):
     new_bid = forms.DecimalField(label="", max_digits=6, decimal_places=2, min_value=0.01, max_value=9999.99, widget=forms.NumberInput(attrs={'placeholder': 'Your bid'}))
 
+
+class AddComment(forms.Form):
+    comment = forms.CharField(
+        label="",
+        widget=forms.Textarea(attrs={'placeholder': 'Write comment', 'class': 'form-control form-group col-6'})
+    )
+
 def index(request):
     return render(request, "auctions/index.html",{
         "listings": AuctionListing.objects.all()
@@ -112,16 +119,30 @@ def listing_details(request,listing_id):
         watchlist_input = None  
 
 
+    comment_form = AddComment()
+
+
     if request.method == "POST":
-        # Check if the listing is already in the user's watchlist
-        if logged_in_user.watchlist.filter(pk=listing_id).exists():
-            # If it is, remove it from the watchlist
-            logged_in_user.watchlist.remove(listing)
-            messages.error(request, f"{listing.title} removed in your watchlist.", extra_tags='watchlist_error')
-        else:
-            # If it's not, add it to the watchlist
-            logged_in_user.watchlist.add(listing)
-            messages.success(request, f"{listing.title} added to your watchlist!", extra_tags='watchlist_success')
+        if "comment_form" in request.POST:
+            comment_form = AddComment(request.POST)
+            if comment_form.is_valid():
+                comment = comment_form.cleaned_data["comment"]
+                new_comment = Comment(listing=listing, user=request.user, content=comment)
+                new_comment.save()
+                listing.comments.add(new_comment)
+                listing.save()
+    
+        elif "watchlist_form" in request.POST:
+            # Handle watchlist form logic
+            if logged_in_user.watchlist.filter(pk=listing_id).exists():
+                logged_in_user.watchlist.remove(listing)
+                messages.error(request, f"{listing.title} removed from your watchlist.", extra_tags='watchlist_error')
+                return redirect('listing_details', listing_id=listing_id)
+            else:
+                logged_in_user.watchlist.add(listing)
+                messages.success(request, f"{listing.title} added to your watchlist!", extra_tags='watchlist_success')
+                return redirect('listing_details', listing_id=listing_id)
+
 
     return render(request, "auctions/listing_details.html", {
         "listing": listing,
@@ -129,6 +150,8 @@ def listing_details(request,listing_id):
         "form": AddBid(),
         "watchlist_input": watchlist_input,
         "user_has_bid": user_has_bid,
+        "commentForm": AddComment(),
+        "comments": listing.comments.all()
     })
 
 @login_required
@@ -206,6 +229,7 @@ def add_bid(request, listing_id):
         "listing": listing,
         "user": request.user,
         "form": AddBid(),
+        "commentForm": AddComment(),
     })
 
     

@@ -16,6 +16,7 @@ class AuctionListing(models.Model):
     watched_by = models.ManyToManyField('User', related_name="watched", blank=True)
     bids = models.ManyToManyField('Bid', related_name="bids_on_listing", blank=True)
     current_bidder = models.ForeignKey('User', on_delete=models.SET_NULL, null=True, blank=True)
+    comments = models.ManyToManyField('Comment', related_name="comments_on_listing", blank=True)
 
 
     def __str__(self):
@@ -34,7 +35,7 @@ class Bid(models.Model):
         return f"{self.user.username} bid {self.bid_amount} on {self.listing.title}"
 
 class Comment(models.Model):
-    listing = models.ForeignKey('AuctionListing', on_delete=models.CASCADE, related_name="comments")
+    listing = models.ForeignKey('AuctionListing', on_delete=models.CASCADE, related_name="listing_comments")
     user = models.ForeignKey('User', on_delete=models.CASCADE)
     content = models.TextField()
 

@@ -18,7 +18,7 @@
           <!-- Watchlist Form -->
           <form class="mt-3" action="{% url 'listing_details' listing.id %}" method="post">
             {% csrf_token %}
-            <input type="submit" value="{{watchlist_input}}"/>
+            <input type="submit" name="watchlist_form" value="{{watchlist_input}}"/>
           </form>
           
           <!-- Watchlist Messages -->
@@ -119,15 +119,29 @@
             {% endfor %}
           {% endif %}
         </form>
-      {% elif user.is_authenticated and not listing.is_active %}
-        <span class="alert alert-danger">The listing is closed!</span>
 
+        <form action="{% url 'listing_details' listing.id %}" method="post">
+          {% csrf_token %}
+          {{commentForm}}
+          <input type="submit" name="comment_form" value="Send Comment" class="mt-3" />
+        </form>
+
+  
+        
+      {% elif user.is_authenticated and not listing.is_active %}
+      <span class="alert alert-danger">The listing is closed!</span>
+      
         
       
       {% else %}
         <!-- Not Authenticated User Message -->
         <p class="alert alert-primary">You must be logged in to bid or add to watchlist.</p>
       {% endif %}
+
+      <h3>Comments</h3>
+      {% for comment in comments %}
+          <p>{{ comment.content }} - {{ comment.user.username }}</p>
+      {% endfor %}
     </div>
   </div>
 </div>
