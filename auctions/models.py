@@ -4,6 +4,9 @@ from django.db import models
 class User(AbstractUser):
     watchlist = models.ManyToManyField('AuctionListing', related_name='watchlist', blank=True)
 
+    def watchlist_count(self):
+        return self.watchlist.count()
+
 class AuctionListing(models.Model):
     title = models.CharField(max_length=128)
     description = models.TextField()

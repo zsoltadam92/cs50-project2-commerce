@@ -2,9 +2,21 @@
 
 <h2 class="pl-5 mb-4">Create New Listing</h2>
 
-<form action="{% url 'new_listing' %}" method="post" class="pl-5">
-  {% csrf_token %} {{form}}
-  <input type="submit" value="Create New Listing" />
-</form>
+{% if messages %}
+  <div class="alert alert-success" role="alert">
+    {% for message in messages %}
+      {{ message }} go to <a href="{% url 'my_listings' %}" class="alert-link">My Listings</a> or <a href="{% url 'new_listing' %}" class="alert-link">Create another listing</a> 
+    {% endfor %}
+  </div>
+
+{% else %}
+  <form action="{% url 'new_listing' %}" method="post" class="pl-5">
+    {% csrf_token %} {{form}}
+    <input type="submit" value="Create New Listing" />
+  </form>
+{% endif %}
+
+
+
 
 {% endblock %}

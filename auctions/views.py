@@ -166,16 +166,19 @@ def new_listing(request):
                 current_bid=form.cleaned_data['starting_bid'],
                 image_url=form.cleaned_data['image_url'],
                 category=form.cleaned_data['category'],
-                creator=request.user  # Assign the logged-in user as the creator
+                creator=request.user, # Assign the logged-in user as the creator
             )
 
             new_listing.save()
+
+             # Add a success message
+            messages.success(request, 'Listing created successfully!')          
         else:
             form = NewListing()
 
 
     return render(request, "auctions/new_listing.html", {
-        "form": NewListing()
+        "form": NewListing(),
     })
 
 
