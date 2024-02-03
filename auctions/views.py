@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
 from .models import User, AuctionListing, Bid, Comment
+import datetime
 
 
 class NewListing(forms.Form):
@@ -120,6 +121,7 @@ def listing_details(request,listing_id):
 
 
     comment_form = AddComment()
+    now = datetime.datetime.now()
 
 
     if request.method == "POST":
@@ -127,7 +129,7 @@ def listing_details(request,listing_id):
             comment_form = AddComment(request.POST)
             if comment_form.is_valid():
                 comment = comment_form.cleaned_data["comment"]
-                new_comment = Comment(listing=listing, user=request.user, content=comment)
+                new_comment = Comment(listing=listing, user=request.user, content=comment, dateTime=now )
                 new_comment.save()
                 listing.comments.add(new_comment)
                 listing.save()

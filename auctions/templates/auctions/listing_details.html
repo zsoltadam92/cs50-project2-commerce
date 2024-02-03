@@ -59,7 +59,7 @@
     <div class="col-sm-6 col-md-6 d-flex flex-column">
       <h3>{{listing.title}}</h3>
       <p>{{listing.description}}</p>
-      <p>Listed by: {{listing.creator}}</p>
+      <p>Listed by: {{listing.creator}} - {{ listing.dateTime }}</p>
       <p>Start bid: {{listing.starting_bid}} $</p>
 
       <!-- Display Current Bid if it's higher than Starting Bid -->
@@ -140,7 +140,7 @@
 
       <h3>Comments</h3>
       {% for comment in comments %}
-          <p>{{ comment.content }} - {{ comment.user.username }}</p>
+          <p>{{ comment.content }} - {{ comment.user.username }} -  {{ comment.dateTime }}</p>
       {% endfor %}
     </div>
   </div>
