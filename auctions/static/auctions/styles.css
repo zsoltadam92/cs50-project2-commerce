@@ -25,13 +25,13 @@ body {
   object-fit: contain;
 } */
 
-.card {
+.card-listing {
   max-width: 15rem;
   margin-right: 1rem;
   cursor: pointer;
 }
 
-.card:hover {
+.card-listing:hover {
   transform: scale(1.1);
 }
 
