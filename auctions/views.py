@@ -6,8 +6,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-
 from .models import User, AuctionListing, Bid, Comment
+from .utils import paginate_listings
 import datetime
 
 
@@ -50,9 +50,10 @@ class AddComment(forms.Form):
     )
 
 def index(request):
-    return render(request, "auctions/index.html",{
-        "listings": AuctionListing.objects.all()
-    })
+    listings = AuctionListing.objects.filter(is_active=True)
+    paginated_listings = paginate_listings(request, listings, per_page=12)
+
+    return render(request, 'auctions/index.html', {'listings': paginated_listings})
 
 
 def login_view(request):
@@ -168,14 +169,14 @@ def new_listing(request):
                 starting_bid=form.cleaned_data['starting_bid'],
                 current_bid=form.cleaned_data['starting_bid'],
                 image_url=form.cleaned_data['image_url'],
-                category=form.cleaned_data['category'],
+                category=form.cleaned_data['category'].capitalize(),
                 creator=request.user, # Assign the logged-in user as the creator
                 dateTime=now,
             )
 
             new_listing.save()
 
-             # Add a success message
+            # Add a success message
             messages.success(request, 'Listing created successfully!')          
         else:
             form = NewListing()

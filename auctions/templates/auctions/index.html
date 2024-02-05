@@ -2,7 +2,7 @@
 <h2 class="mb-4">Active Listings</h2>
 
 <div class="row">
-  {% for listing in listings %} {% if listing.is_active %}
+  {% for listing in listings %}
   <div class="col-md-4 col-lg-3 col-xl-2 mb-4">
     <div class="card card-listing h-100 d-flex flex-column">
       <img
@@ -23,7 +23,41 @@
       </div>
     </div>
   </div>
-  {% endif %} {% endfor %}
+  {% endfor %}
 </div>
+
+<nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center mt-4">
+    {% if listings.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page=1" aria-label="First">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="?page={{ listings.previous_page_number }}">
+          {{ listings.previous_page_number }}
+        </a>
+      </li>
+    {% endif %}
+
+    <li class="page-item active">
+      <span class="page-link">{{ listings.number }} <span class="sr-only">(current)</span></span>
+    </li>
+
+    {% if listings.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ listings.next_page_number }}">
+          {{ listings.next_page_number }}
+        </a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="?page={{ listings.paginator.num_pages }}" aria-label="Last">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
 
 {% endblock %}
