@@ -158,6 +158,7 @@ def listing_details(request,listing_id):
 
 @login_required
 def new_listing(request):
+    now = datetime.datetime.now()
     if request.method == "POST":
         form = NewListing(request.POST)
         if form.is_valid():
@@ -169,6 +170,7 @@ def new_listing(request):
                 image_url=form.cleaned_data['image_url'],
                 category=form.cleaned_data['category'],
                 creator=request.user, # Assign the logged-in user as the creator
+                dateTime=now,
             )
 
             new_listing.save()
