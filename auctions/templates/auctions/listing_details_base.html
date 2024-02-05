@@ -1,0 +1,163 @@
+{% extends "auctions/layout.html" %} {% block body %}
+
+
+
+<div class="container mt-5">
+  <div class="row justify-content-center align-items-center">
+    <div class="col-sm-5 col-lg-3 d-flex flex-column mr-5">
+      <img
+        width="250px"
+        height="300px"
+        src="{{listing.image_url}}"
+        alt="{{listing.title}}"
+        class="position-relative"
+        style="object-fit: contain"
+      />
+
+      {% if not listing.is_active %}
+        <span class="badge badge-danger position-absolute top-0 start-50 translate-middle-x" style="font-size: 1rem">Closed</span>
+      {% endif %}
+    </div>
+
+    <div class="col-sm-6 col-md-6 d-flex flex-column">
+      <h3>{{listing.title}}</h3>
+      <p>{{listing.description}}</p>
+      <p>Listed by: {{listing.creator}} - {{ listing.dateTime }}</p>
+      <p>Start bid: {{listing.starting_bid}} $</p>
+
+      <!-- Display Current Bid if it's higher than Starting Bid -->
+      {% if listing.start_bid|floatformat < listing.current_bid|floatformat %}
+        <p>Current bid: {{listing.current_bid}} $</p>
+      {% endif %} 
+      
+      <p>{{listing.get_bid_count}} bids</p>
+    </div>
+  </div>
+
+  <div class="row justify-content-center align-items-center">
+    <div class="col-sm-5 col-lg-3 d-flex flex-column mr-5">
+      {% if user.is_authenticated and user != listing.creator %}
+        <form class="mt-3" action="{% url 'listing_details' listing.id %}" method="post">
+          {% csrf_token %}
+          {% if listing.is_active %}
+            <input type="submit" name="watchlist_form" value="{{watchlist_input}}"/>
+          {% elif not listing.is_active %}
+            <input type="submit" value="Remove to Watchlist"/>
+          {% endif %}
+        </form>
+      
+        <!-- Watchlist Messages -->
+        {% if messages %} 
+          {% for message in messages %}
+            {% if message.tags == 'watchlist_success success' or message.tags == 'watchlist_error error' %}
+              <p class="alert {% if message.tags == 'watchlist_success success' %}alert-success
+                {% elif message.tags == 'watchlist_error error' %}alert-danger{% endif %}" role="alert">
+                {{ message }}
+              </p>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+    {% endif %}
+    </div>
+
+    <div class="col-sm-6 col-md-6 d-flex flex-column">
+      {% if user.is_authenticated %}
+        {% if listing.is_active %}
+          {% if listing.current_bidder == user %}
+            <p>You currently have the highest bid!</p>
+          {% elif user_has_bid and listing.current_bidder != user%}
+            <p>Your bid was overbid.</p>
+          {% elif not user_has_bid  and user != listing.creator%}
+            <p>You haven't placed a bid on this listing yet.</p>
+          {% endif %}
+        {% else %}
+          {% if listing.current_bidder == user %}
+            <p>You won the auction.</p>
+          {% elif user_has_bid and listing.current_bidder != user%}
+          <p>Your bid was overbid.</p>
+          {% endif %}
+        {% endif %}
+      {% endif %} 
+    </div>
+
+    
+
+
+  </div>
+
+  <div class="row justify-content-center align-items-center">
+    <div class="col-sm-5 col-lg-3 d-flex flex-column mr-5">
+
+    </div>
+
+    <div class="col-sm-6 col-md-6 d-flex flex-column ">
+      <!-- Close Listing Form (for the creator) -->
+      {% if user == listing.creator %} 
+        {% if listing.is_active %}
+          <form action="{% url 'close_listing' listing.id %}" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Close listing" />
+          </form>
+        {% else %}
+          <!-- Closed Listing Message -->
+          <span class="alert alert-danger">The listing is closed!</span>
+        {% endif %}
+
+      {% elif user.is_authenticated and listing.is_active %}
+        <!-- Bidding Form for Authenticated Users -->
+        <form action="{% url 'add_bid' listing.id %}" method="post">
+          {% csrf_token %}
+          <div class="input-group mt-3">
+            <div class="input-group-prepend">
+              <div class="input-group-text">$</div>
+              {{form}}
+            </div>
+          </div>
+          <input type="submit" value="Place Bid" class="mt-3" />
+          
+          <!-- Bidding Messages -->
+          {% if messages %} 
+            {% for message in messages %}
+              {% if message.tags == 'add_bid_success success' or message.tags == 'add_bid_error error' %}
+                <p class="alert {% if message.tags == 'add_bid_success success' %}alert-success{% elif message.tags == 'add_bid_error error' %}alert-danger{% endif %}" role="alert">
+                  {{ message }}
+                </p>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        </form>
+
+        {% elif not user.is_authenticated %}
+          <!-- Not Authenticated User Message -->
+          <p class="alert alert-primary">You must be logged in to bid or add to watchlist.</p>
+      {% endif %}
+    </div>
+
+  </div>
+  
+  <div class="row justify-content-center align-items-center">
+    <div class="col-sm-5 col-lg-3 d-flex flex-column mr-5">
+      {% if user.is_authenticated and listing.is_active %}
+        <form action="{% url 'listing_details' listing.id %}" method="post">
+          {% csrf_token %}
+          {{commentForm}}
+          <input type="submit" name="comment_form" value="Send Comment" class="mt-3" />
+        </form>
+      {% endif %}
+    </div>
+    
+    <div class="col-sm-6 col-md-6 d-flex flex-column ">
+      <h3>Comments</h3>
+      {% for comment in comments %}
+          <p>{{ comment.content }} - {{ comment.user.username }} -  {{ comment.dateTime }}</p>
+      {% endfor %}
+    </div>
+
+  </div>
+
+</div>
+
+
+
+
+{% endblock %}
