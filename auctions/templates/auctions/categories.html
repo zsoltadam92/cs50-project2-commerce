@@ -1,10 +1,11 @@
 {% extends "auctions/layout.html" %} {% block body %}
 
 <h2 class="mb-5 text-center">List of Categories</h2>
-<ul class="list-group list-group-horizontal d-flex flex-wrap ml-auto mr-auto" style="width: 70%">
+
+<div class="container d-flex justify-content-start flex-wrap">
     {% for category in categories %}
-        <li class="list-group-item  bg-info"><a class=" bg-info text-white  btn stretched-link" href="{% url 'listings_by_category' category %}">{{ category }}</a></li>
+        <a class=" btn bg-info text-white mr-3 mb-3 " href="{% url 'listings_by_category' category %}">{{ category }}</a>
     {% endfor %}
-</ul>
+</div>
 
 {% endblock %}

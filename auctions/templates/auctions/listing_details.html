@@ -20,9 +20,9 @@
         <form class="mt-3" action="{% url 'listing_details' listing.id %}" method="post">
           {% csrf_token %}
           {% if listing.is_active %}
-            <input class="btn btn-info"  type="submit" name="watchlist_form" value="{{watchlist_input}}"/>
+            <input class="btn {% if watchlist_input == 'Add to Watchlist' %}btn-info {% else %}btn-danger {% endif %}"  type="submit" name="watchlist_form" value="{{watchlist_input}}"/>
           {% elif not listing.is_active %}
-            <input class="btn btn-info" type="submit" value="Remove to Watchlist"/>
+            <input class="btn btn-danger" type="submit" value="Remove to Watchlist"/>
           {% endif %}
         </form>
       
@@ -78,7 +78,7 @@
           {% if listing.current_bidder == user %}
             <p class="alert alert-success">You won the auction.</p>
           {% elif user_has_bid and listing.current_bidder != user%}
-          <p class="alert alert-warning">Your bid was overbid.</p>
+          <p class="alert alert-danger">Your bid was overbid.</p>
           {% endif %}
         {% endif %}
       {% endif %} 

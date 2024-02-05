@@ -14,7 +14,7 @@
   <div class="card  bg-light mr-auto ml-auto mt-5" style="max-width: 50rem;">
     <div class="card-header"><h2>Create New Listing</h2></div>
     <div class="card-body">
-      <form action="{% url 'new_listing' %}" method="post" class="">
+      <form action="{% url 'new_listing' %}" method="post" >
         {% csrf_token %} {{form}}
         <input class="btn btn-primary" type="submit" value="Create New Listing" />
       </form>
