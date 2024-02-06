@@ -1,0 +1,74 @@
+
+{% if not object_list %}
+  <p class="ml-5">No listings yet.</p>
+{% else %}
+
+  <div class="row ml-auto mr-auto">
+    {% for listing in object_list %}
+    <div class="col-md-4 col-lg-3 col-xl-2 mb-4">
+      <div class="card card-listing h-100 d-flex flex-column">
+        <img
+          class="card-img-top img-fluid position-relative"
+          src="{{ listing.image_url }}"
+          alt="{{ listing.title }}"
+          style="width: 200px"
+        />
+        {% if not listing.is_active %}
+        <span
+          class="badge badge-danger position-absolute top-0 start-50 translate-middle-x"
+          style="font-size: 1rem"
+          >Closed</span
+        >
+        {% endif %}
+        <div class="card-body">
+          <h4 class="card-title">{{ listing.title|truncatechars:30 }}</h4>
+          <p class="card-text">{{ listing.description|truncatechars:60 }}</p>
+          <a
+            href="{% url 'listing_details' listing.id %}"
+            class="stretched-link"
+          ></a>
+        </div>
+        <div class="card-footer mt-auto">
+          <p class="card-text">$ {{ listing.current_bid }}</p>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center mt-4">
+      {% if object_list.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page=1" aria-label="First">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="?page={{ object_list.previous_page_number }}">
+            {{ object_list.previous_page_number }}
+          </a>
+        </li>
+      {% endif %}
+
+      <li class="page-item active">
+        <span class="page-link">{{ object_list.number }} <span class="sr-only">(current)</span></span>
+      </li>
+
+      {% if object_list.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ object_list.next_page_number }}">
+            {{ object_list.next_page_number }}
+          </a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="?page={{ object_list.paginator.num_pages }}" aria-label="Last">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
+
+{% endif %}
+

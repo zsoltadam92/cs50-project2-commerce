@@ -1,4 +1,3 @@
-from django import forms
 from django.contrib import messages 
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
@@ -9,45 +8,7 @@ from django.contrib.auth.decorators import login_required
 from .models import User, AuctionListing, Bid, Comment
 from .utils import paginate_listings
 import datetime
-
-
-class NewListing(forms.Form):
-    title = forms.CharField(
-        label="",
-        max_length=200,
-        widget=forms.TextInput(attrs={'placeholder': 'Title', 'class': 'form-control form-group col-12'})
-    )
-    description = forms.CharField(
-        label="",
-        widget=forms.Textarea(attrs={'placeholder': 'Description', 'class': 'form-control form-group col-12'})
-    )
-    starting_bid = forms.DecimalField(
-        label="",
-        max_digits=6,
-        decimal_places=2,
-        min_value=0.01,
-        max_value=9999.99,
-        widget=forms.NumberInput(attrs={'placeholder': 'Starting bid', 'class': 'form-control form-group col-12'})
-    )
-    image_url = forms.URLField(
-        label="",
-        widget=forms.URLInput(attrs={'placeholder': 'Image URL', 'class': 'form-control form-group col-12'})
-    )
-    category = forms.CharField(
-        label="",
-        max_length=128,
-        widget=forms.TextInput(attrs={'placeholder': 'Category', 'class': 'form-control form-group col-6'})
-    )
-
-class AddBid(forms.Form):
-    new_bid = forms.DecimalField(label="", max_digits=6, decimal_places=2, min_value=0.01, max_value=9999.99, widget=forms.NumberInput(attrs={'placeholder': 'Your bid'}))
-
-
-class AddComment(forms.Form):
-    comment = forms.CharField(
-        label="",
-        widget=forms.Textarea(attrs={'placeholder': 'Write comment', 'class': 'form-control form-group'})
-    )
+from .forms import NewListing, AddBid, AddComment
 
 def index(request):
     listings = AuctionListing.objects.filter(is_active=True)
@@ -176,7 +137,7 @@ def new_listing(request):
                 current_bid=form.cleaned_data['starting_bid'],
                 image_url=form.cleaned_data['image_url'],
                 category=form.cleaned_data['category'].capitalize(),
-                creator=request.user, # Assign the logged-in user as the creator
+                creator=request.user, 
                 dateTime=now,
             )
 
@@ -265,4 +226,5 @@ def categories(request):
 
 def listings_by_category(request, category):
     listings = AuctionListing.objects.filter(category=category, is_active=True)
-    return render(request, 'auctions/listings_by_category.html', {'listings': listings, 'category': category})
+    paginated_listings = paginate_listings(request, listings, per_page=12)
+    return render(request, 'auctions/listings_by_category.html', {'listings': paginated_listings, 'category': category})
