@@ -1,6 +1,6 @@
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-def paginate_listings(request, listings, per_page=12):
+def paginate_listings(request, listings, per_page):
     paginator = Paginator(listings, per_page)
     page = request.GET.get('page')
     

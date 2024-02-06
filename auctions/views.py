@@ -55,6 +55,12 @@ def index(request):
 
     return render(request, 'auctions/index.html', {'listings': paginated_listings})
 
+def closed_listings(request):
+    listings = AuctionListing.objects.filter(is_active=False)
+    paginated_listings = paginate_listings(request, listings, per_page=12)
+
+    return render(request, 'auctions/closed_listings.html', {'listings': paginated_listings})
+
 
 def login_view(request):
     if request.method == "POST":
@@ -189,8 +195,10 @@ def new_listing(request):
 
 @login_required
 def my_listings(request):
+    listings = AuctionListing.objects.filter(creator=request.user)
+    paginated_listings = paginate_listings(request, listings, per_page=12)
     return render(request, "auctions/my_listings.html", {
-        "my_listings": AuctionListing.objects.filter(creator=request.user)
+        "my_listings": paginated_listings
     })
 
 
@@ -243,9 +251,11 @@ def add_bid(request, listing_id):
     
 @login_required
 def watchlist(request):
+    watchlist = request.user.watchlist.all()
+    paginated_listings = paginate_listings(request, watchlist, per_page=12)
         # Display the user's watchlist
     return render(request, "auctions/watchlist.html", {
-        "watchlist": request.user.watchlist.all()
+        "watchlist": paginated_listings
     })
 
 

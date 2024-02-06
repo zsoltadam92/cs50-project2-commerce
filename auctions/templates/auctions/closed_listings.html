@@ -1,5 +1,5 @@
 {% extends "auctions/layout.html" %} {% block body %}
-<h2 class="mb-4">Active Listings</h2>
+<h2 class="mb-4">Closed Listings</h2>
 
 <div class="row ml-auto mr-auto">
   {% for listing in listings %}
@@ -9,7 +9,13 @@
         class="card-img-top img-fluid"
         src="{{ listing.image_url }}"
         alt="{{ listing.title }}"
-      />
+        class="position-relative"
+        />
+        <span
+          class="badge badge-danger position-absolute top-0 start-50 translate-middle-x"
+          style="font-size: 1rem"
+          >Closed</span>
+      
       <div class="card-body">
         <h4 class="card-title">{{ listing.title|truncatechars:30 }}</h4>
         <p class="card-text">{{ listing.description|truncatechars:60 }}</p>
