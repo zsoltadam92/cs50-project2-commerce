@@ -1,6 +1,6 @@
 {% extends "auctions/layout.html" %} {% block body %}
 
-<h2 class="mb-4">Listings in {{ category }}</h2>
+<h2 class="mb-4">Listings in <i class="text-muted">{{ category }}</i></h2>
 
 {% include "auctions/listings_pagination_base.html" with object_list=listings %}
 

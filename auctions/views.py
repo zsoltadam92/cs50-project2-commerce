@@ -10,19 +10,21 @@ from .utils import paginate_listings
 import datetime
 from .forms import NewListing, AddBid, AddComment
 
+# Rendering the index page with active listings
 def index(request):
     listings = AuctionListing.objects.filter(is_active=True)
     paginated_listings = paginate_listings(request, listings, per_page=12)
 
     return render(request, 'auctions/index.html', {'listings': paginated_listings})
 
+# Rendering the page with closed listings
 def closed_listings(request):
     listings = AuctionListing.objects.filter(is_active=False)
     paginated_listings = paginate_listings(request, listings, per_page=12)
 
     return render(request, 'auctions/closed_listings.html', {'listings': paginated_listings})
 
-
+# Handling user login
 def login_view(request):
     if request.method == "POST":
 
@@ -75,11 +77,12 @@ def register(request):
         return render(request, "auctions/register.html")
 
 
-
+# Rendering details of a specific listing
 def listing_details(request,listing_id):
     listing = AuctionListing.objects.get(pk=listing_id)
     logged_in_user = request.user if request.user.is_authenticated else None
 
+    # Check if user is logged in and handle watchlist logic
     if logged_in_user:
         user_has_bid = Bid.objects.filter(listing=listing, user=logged_in_user).exists()
         watchlist_input = "Remove to Watchlist" if logged_in_user.watchlist.filter(pk=listing.id).exists() else "Add to Watchlist"
@@ -91,7 +94,7 @@ def listing_details(request,listing_id):
     comment_form = AddComment()
     now = datetime.datetime.now()
 
-
+    # Handle form submissions for adding comments and managing watchlist
     if request.method == "POST":
         if "comment_form" in request.POST:
             comment_form = AddComment(request.POST)
@@ -124,6 +127,7 @@ def listing_details(request,listing_id):
         "comments": listing.comments.all()
     })
 
+# Creating a new listing
 @login_required
 def new_listing(request):
     now = datetime.datetime.now()
@@ -153,7 +157,7 @@ def new_listing(request):
         "form": NewListing(),
     })
 
-
+# Rendering user's own listings
 @login_required
 def my_listings(request):
     listings = AuctionListing.objects.filter(creator=request.user)
@@ -162,7 +166,7 @@ def my_listings(request):
         "my_listings": paginated_listings
     })
 
-
+# Closing a listing
 @login_required
 def close_listing(request, listing_id):
     listing = AuctionListing.objects.get(pk=listing_id, creator=request.user)
@@ -170,7 +174,7 @@ def close_listing(request, listing_id):
     listing.save()
     return redirect('listing_details', listing_id=listing_id)
 
-
+# Adding a bid to a listing
 @login_required
 def add_bid(request, listing_id):
     listing = AuctionListing.objects.get(pk=listing_id)
@@ -209,21 +213,21 @@ def add_bid(request, listing_id):
         "commentForm": AddComment(),
     })
 
-    
+# Rendering the user's watchlist
 @login_required
 def watchlist(request):
     watchlist = request.user.watchlist.all()
     paginated_listings = paginate_listings(request, watchlist, per_page=12)
-        # Display the user's watchlist
     return render(request, "auctions/watchlist.html", {
         "watchlist": paginated_listings
     })
 
-
+# Rendering categories
 def categories(request):
     categories = AuctionListing.objects.values_list('category', flat=True).distinct()
     return render(request, 'auctions/categories.html', {'categories': sorted(categories)})
 
+# Rendering listings by category
 def listings_by_category(request, category):
     listings = AuctionListing.objects.filter(category=category, is_active=True)
     paginated_listings = paginate_listings(request, listings, per_page=12)
